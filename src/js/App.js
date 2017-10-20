@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
-import logo from '../img/logo.svg';
-import '../css/App.css';
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import { Route } from 'react-router-dom';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+// import the different components here
+import HomePageContainer from './HomePageContainer';
+
+export default class App extends Component {
+    
+    render() {
+        return (
+            <Grid fluid>
+                <Row>
+                    <Col xs={12}>
+                        <Route exact path='/' component={HomePageContainer} />
+                        {/* <Route path='/recipes' component={ResultsContainer} /> */}
+                    </Col>
+                </Row>
+            </Grid>
+        );
+    }
+
 }
-
-export default App;
