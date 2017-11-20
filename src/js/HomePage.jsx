@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
-import logo from '../img/logo.svg';
 import '../css/App.css';
 import RaisedButton from 'material-ui/RaisedButton';
-import TextField from 'material-ui/TextField';
 import { Grid, Row, Col } from 'react-flexbox-grid';
-import {Card, CardHeader, CardText} from 'material-ui/Card';
-import Checkbox from 'material-ui/Checkbox';
 import _ from 'lodash';
 import AutoComplete from 'material-ui/AutoComplete';
 import {MapsLocalDining} from 'material-ui/svg-icons';
@@ -65,11 +61,11 @@ export class HomePage extends Component {
         return (
             <div className="App">
                 <div className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
                     <h2>Let's get cooking</h2>
                 </div>
                 <InputIngredients allIngredients={this.state.ingredientsByCategory} 
-                                  ingredientsName={this.state.ingredientsWithoutCategory} />
+                                  ingredientsName={this.state.ingredientsWithoutCategory} 
+                                  history={this.props.history}/>
             </div>
         );
     }
@@ -83,7 +79,7 @@ class InputIngredients extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps == this.props)return;
+        if (nextProps === this.props)return;
 
         if(nextProps.ingredientsSelected) {
             this.setState({ ingredientsSelected: nextProps.ingredientsSelected });
@@ -137,10 +133,10 @@ class InputIngredients extends Component {
 
     handleCheckbox = (eventType, item) => {
         let ingredientsSelected = this.state.ingredientsSelected;
-        if(eventType == 'add') {
+        if(eventType === 'add') {
             ingredientsSelected = [...ingredientsSelected, item];
         } else {
-            const remove = _.remove(ingredientsSelected, toBeRemoved =>  item == toBeRemoved);
+            _.remove(ingredientsSelected, toBeRemoved =>  item === toBeRemoved);
         }
         this.setState({ ingredientsSelected });
     }
@@ -157,7 +153,8 @@ class InputIngredients extends Component {
     }
 
     showRecipes = () => {
-        alert(this.state.ingredientsSelected);
+        // TODO: router here - pass the state
+        this.props.history.push({pathname: '/recipes', state: {...this.state}});
     }
 }
 
@@ -207,7 +204,7 @@ class TypeIngredients extends Component {
     handleAutoComplete = (chosenRequest, index) => {
         this.setState({ searchText: '' });
         let item = chosenRequest;
-        if(index == -1) {
+        if(index === -1) {
             item = _.startCase(chosenRequest); 
         }
         this.props.handleTextInput(item);
