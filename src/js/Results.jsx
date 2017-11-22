@@ -5,6 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import {MapsLocalDining} from 'material-ui/svg-icons';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import Checkbox from 'material-ui/Checkbox';
 import _ from 'lodash';
 
 export class Results extends Component {
@@ -42,7 +43,6 @@ export class Results extends Component {
                 
             ],
         };
-        // this.allTags = ['Breakfast', 'Appetizers', 'Main Course', 'Finger Food', 'Snacks', 'Desserts', 'Game Day' ,'Weeknight Dinnners', 'Office Lunch', 'Quick Eats', 'Slow Cook', 'Meal Prep', '< 15 mins', '15 mins - 30 mins', '30 mins - 1 hour', '1 hour - 2 hours', '> 2 hours', 'Hot', 'Cold'];
     }
 
     componentWillReceiveProps(nextProps) {
@@ -56,13 +56,6 @@ export class Results extends Component {
 
     changeFilter = () => {
         const currentCount = this.state.filterCount;
-        // let newCount = currentCount + 1;
-        // let currentfilterCriteria = this.state.filterCriteria;
-        // let newfilterCriteria = currentfilterCriteria;
-        // if (currentCount === 6) {
-        //     newCount = 1;
-        //     newfilterCriteria = _.difference(currentfilterCriteria, this.allTags);
-        // }
         const newCount = (currentCount === 6) ? 1 : currentCount + 1;
         this.setState({
             filterCount: newCount,
@@ -155,13 +148,26 @@ class FilterOptions extends Component {
                     </CardActions>
                 </Card>
             );
-        } else if (data.MultiSelect) {
+        } else if (data.Type === 'MultiSelect') {
             return (
                 <Card>
                     <CardHeader />
                     <CardMedia>
                         <Row> {data.Text} </Row>
                         <Row> {data.Options.map(option => { const flag = (`${filterProps.filterCount}|${option}` in filterProps) ? filterProps[`${filterProps.filterCount}|${option}`][0] : false; return (<RaisedButton key={option} label={option} primary={flag} style={style} onClick={this.props.addFilterTags(option)} />); })} </Row>
+                    </CardMedia> 
+                    <CardActions>
+                        <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
+                    </CardActions>
+                </Card>
+            );
+        } else if (data.Type === 'MultiCheckbox') {
+            return (
+                <Card>
+                    <CardHeader />
+                    <CardMedia>
+                        <Row> {data.Text} </Row>
+                        <Row> {data.Options.map(option => <Checkbox key={option} label={option} checked={_.includes(filterProps.filterCriteria, option)} onCheck={this.props.addFilterTags(option)} />)} </Row>
                     </CardMedia> 
                     <CardActions>
                         <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
@@ -195,31 +201,26 @@ class FilterOptions extends Component {
                 Type: 'MultiSelect',
                 Text: 'Any particular type of dish in mind (Select all that apply)',
                 Options: ['Breakfast', 'Appetizers', 'Main Course', 'Finger Food', 'Snacks', 'Desserts'],
-                MultiSelect: true
             });
             case 2: return ({
-                Type: 'MultiSelect',
+                Type: 'MultiCheckbox',
                 Text: 'Which cusine are you in the mood for (Select all that apply)',
                 Options: ['Italian', 'Indian', 'American', 'Thai', 'Southern', 'Middle Eastern'],
-                MultiSelect: true
             });
             case 3: return ({
                 Type: 'SingleSelect',
                 Text: 'In the mood for something hot or cold',
                 Options: ['Hot', 'Cold'],
-                MultiSelect: false
             });
             case 4: return ({
                 Type: 'SingleSelect',
                 Text: 'How much time do you have (Select closest match - including prep time)',
                 Options: ['< 15 mins', '15 mins - 30 mins', '30 mins - 1 hour', '1 hour - 2 hours', '> 2 hours'],
-                MultiSelect: false
             });
             case 5: return ({
                 Type: 'MultiSelect',
                 Text: 'Do any of these categories sound good (Select all that apply)',
                 Options: ['Game Day', 'Weeknight Dinners', 'Office Lunch', 'Quick Eats', 'Slow Cook', 'Meal Prep'],
-                MultiSelect: true
             });
             case 6: return ({
                 Type: 'Restart',
