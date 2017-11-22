@@ -11,10 +11,11 @@ export class Results extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            specialTags: [], 
-            ingredientsSelected: ['Milk', 'Eggs', 'Butter', 'Banana', 'Tomato'],
+            filterCriteria: ['Milk', 'Eggs', 'Butter', 'Banana', 'Tomato'],
+            filterCount: 0,
             recipes: [
                 {
+                    id: 1,
                     Name: 'Tomato Soup',
                     Tags: 'Comfort-Food',
                     Cusine: 'Italian',
@@ -27,6 +28,7 @@ export class Results extends Component {
                     Image: 'http://cdn-image.foodandwine.com/sites/default/files/styles/medium_2x/public/201308-xl-tomato-soup-with-chickpeas-and-pasta.jpg?itok=UY8q3aEd',
                 }, 
                 {
+                    id: 2,
                     Name: 'Easy Cheesy Omlette',
                     Tags: 'Quick-Eats',
                     Cusine: 'American',
@@ -45,17 +47,43 @@ export class Results extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps === this.props) return;
         alert(nextProps);
-        nextProps = { ingredientsSelected: [
+        nextProps = { filterCriteria: [
             'Milk', 'Eggs', 'Butter', 'Banana'
         ]};
-        this.setState({ ingredientsSelected: nextProps.ingredientsSelected });
+        this.setState({ filterCriteria: nextProps.ingredientsSelected });
     }
 
-    conponentDidMount() {
-        alert(this.props.location.state);
+    changeFilter = () => {
+        const currentCount = this.state.filterCount;
+        const newCount = (currentCount === 6) ? 0 : currentCount+1;
+        this.setState({
+            filterCount: newCount
+        });
+    }
+
+    addFilterTags = (option) => () => {
+        const newFilters = this.state.filterCriteria.concat(option);
+        const buttonHighlightId = `${this.state.filterCount}|${option}`;
+        this.setState({ filterCriteria: newFilters, [buttonHighlightId]: true });
+    }
+
+    handleChips = (arrayValue, chipDeleted) => {
+        const buttonHighlightId = `${this.state.filterCount}|${chipDeleted}`;
+        this.setState({ filterCriteria: arrayValue, [buttonHighlightId]: false });
+    }
+
+    modifyIngredients = () => {
+        alert('route back to homepage, but with state');
+        // TODO: router - pass the state
+        this.props.history.push({pathname: '/', state: {...this.state}});
+    }
+
+    openRecipe = (recipeId) => () => {
+        this.props.history.push(`/recipe/${recipeId}`);
     }
 
     render() {
+        const currentState = {...this.state};
         return (
             <div className="App">
                 <div className="App-header">
@@ -64,11 +92,12 @@ export class Results extends Component {
                 <Grid fluid>
                     <Row>
                         <Col xs={4}>
-                            <FilterOptions />
+                            <FilterOptions filterProps={currentState} changeFilter={this.changeFilter} 
+                                           addFilterTags={this.addFilterTags} modifyIngredients={this.modifyIngredients} />
                         </Col>
                         <Col xs={8}>
-                            <ShowResults ingredientsSelected={this.state.ingredientsSelected} 
-                                         recipes={this.state.recipes} history={this.props.history}/>
+                            <ShowResults filterCriteria={this.state.filterCriteria} handleChips={this.handleChips}
+                                         recipes={this.state.recipes} openRecipe={this.openRecipe}/>
                         </Col>
                     </Row>
                 </Grid>
@@ -78,48 +107,111 @@ export class Results extends Component {
 }
 
 class FilterOptions extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {count: 0};
-    }
-
-    changeFilter = () => {
-        this.setState({
-            count: this.state.count+1
-        });
-    }
 
     renderCard = (data) => {
-        return (
-            <Card>
-                <CardHeader />
-                <CardMedia>
-                    {this.state.count === 0 ? 
+        const style = {
+            margin: 12,
+        };
+        const filterProps = this.props.filterProps;
+        if (data.Type === 'Landing') {
+            return (
+                <Card>
+                    <CardHeader />
+                    <CardMedia>
                         <img src={data.Image} alt="" /> 
-                        : <div>{data.Text}</div>}
-                </CardMedia> 
-                <CardActions>
-                    <FlatButton label="I don't see anything I like" onClick={this.changeFilter} />
-                </CardActions>
-            </Card>
-        );
+                    </CardMedia> 
+                    <CardActions>
+                        <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
+                    </CardActions>
+                </Card>
+            );
+        } else if (data.Type === 'Restart') {
+            return (
+                <Card>
+                    <CardHeader />
+                    <CardMedia>
+                        <img src={data.Image} alt="" /> 
+                    </CardMedia> 
+                    <CardActions>
+                        <FlatButton label="Let's start again" onClick={this.props.changeFilter} />
+                    </CardActions>
+                </Card>
+            );
+        } else if (data.MultiSelect) {
+            return (
+                <Card>
+                    <CardHeader />
+                    <CardMedia>
+                        <Row> {data.Text} </Row>
+                        <Row> {data.Options.map(option => <RaisedButton key={option} label={option} primary={filterProps[`${filterProps.filterCount}|${option}`]} style={style} onClick={this.props.addFilterTags(option)} />)} </Row>
+                    </CardMedia> 
+                    <CardActions>
+                        <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
+                    </CardActions>
+                </Card>
+            );
+        } else {
+            return (
+                <Card>
+                    <CardHeader />
+                    <CardMedia>
+                        <Row> {data.Text} </Row>
+                        <Row> {data.Options.map(option => <RaisedButton key={option} label={option} primary={filterProps[`${filterProps.filterCount}|${option}`]} style={style} onClick={this.props.addFilterTags(option)} />)} </Row>
+                    </CardMedia> 
+                    <CardActions>
+                        <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
+                    </CardActions>
+                </Card>
+            );
+        }
+        
     }
 
     selectCardToDisplay = (count) => {
         switch(count) {
             case 0: return ({
+                Type: 'Landing',
                 Image: 'https://allidoiscook.files.wordpress.com/2015/07/609341_orig.jpg',
             });
             case 1: return ({
+                Type: 'MultiSelect',
                 Text: 'Any particular type of dish in mind (Select all that apply)',
                 Options: ['Breakfast', 'Appetizers', 'Main Course', 'Finger Food', 'Snacks', 'Desserts'],
                 MultiSelect: true
-            })
+            });
+            case 2: return ({
+                Type: 'MultiSelect',
+                Text: 'Which cusine are you in the mood for (Select all that apply)',
+                Options: ['Italian', 'Indian', 'American', 'Thai', 'Southern', 'Middle Eastern'],
+                MultiSelect: true
+            });
+            case 3: return ({
+                Type: 'SingleSelect',
+                Text: 'In the mood for something hot or cold',
+                Options: ['Hot', 'Cold'],
+                MultiSelect: false
+            });
+            case 4: return ({
+                Type: 'SingleSelect',
+                Text: 'How much time do you have (Select closest match - including prep time)',
+                Options: ['< 15 mins', '15 mins - 30 mins', '30 mins - 1 hour', '1 hour - 2 hours', '> 2 hours'],
+                MultiSelect: false
+            });
+            case 5: return ({
+                Type: 'MultiSelect',
+                Text: 'Do any of these categories sound good (Select all that apply)',
+                Options: ['Game Day', 'Weeknight Dinners', 'Office Lunch', 'Quick Eats', 'Slow Cook', 'Meal Prep'],
+                MultiSelect: true
+            });
+            case 6: return ({
+                Type: 'Restart',
+                Image: 'http://cdn.makeuseof.com/wp-content/uploads/2013/12/reboot-computer-errors.jpg',
+            });
         }
     }
 
     render() {
-        const data = this.selectCardToDisplay(this.state.count);
+        const data = this.selectCardToDisplay(this.props.filterProps.filterCount);
         return (
             <Row middle="xs">{this.renderCard(data)}</Row>
         );
@@ -127,13 +219,8 @@ class FilterOptions extends Component {
 }
 
 class ShowResults extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { ingredientsSelected: this.props.ingredientsSelected };
-    }
-
     renderRecipe = (recipe) => {
-        const usedIngredients = _.intersection(this.state.ingredientsSelected, recipe.IngredientsName);
+        const usedIngredients = _.intersection(this.props.filterCriteria, recipe.IngredientsName);
         const missingItems = recipe.Substitutions ? Object.keys(recipe.Substitutions) : '';
         const overlayCardTitle = !!recipe.Substitutions ? `Substitutions available for: ${missingItems}` : 'You have all ingredients';
         return (
@@ -149,7 +236,7 @@ class ShowResults extends Component {
                         {`This recipe uses your: ${usedIngredients}`}
                     </CardText>
                     <CardActions>
-                        <FlatButton label="View Full Recipe" />
+                        <FlatButton label="View Full Recipe" onClick={this.props.openRecipe(recipe.id)}/>
                     </CardActions>
                 </Card>
             </Col>
@@ -161,11 +248,11 @@ class ShowResults extends Component {
             <div>
                 <Row center="xs">
                     <Col xs={10}>
-                        <ChipsArray chipData={this.state.ingredientsSelected} handleChips={this.handleChips} />
+                        <ChipsArray chipData={this.props.filterCriteria} handleChips={this.props.handleChips} />
                     </Col>
                     <Col xs={2}>
                         <RaisedButton label="Modify" secondary={true} 
-                                      icon={<MapsLocalDining />} onClick={this.modifyIngredients} 
+                                      icon={<MapsLocalDining />} onClick={this.props.modifyIngredients} 
                                       />
                     </Col>
                 </Row>
@@ -174,15 +261,5 @@ class ShowResults extends Component {
                 </Row>
             </div>
         );
-    }
-
-    handleChips = (arrayValue) => {
-        this.setState({ ingredientsSelected: arrayValue });
-    }
-
-    modifyIngredients = () => {
-        alert('route back to homepage, but with state');
-        // TODO: router - pass the state
-        this.props.history.push({pathname: '/', state: {...this.state}});
     }
 }

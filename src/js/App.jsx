@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 // import the different components here
 import HomePageContainer from './HomePageContainer';
 import ResultsContainer from './ResultsContainer';
+import RecipeContainer from './RecipeContainer';
 
 export default class App extends Component {
     
@@ -15,6 +16,7 @@ export default class App extends Component {
                     <Col xs={12}>
                         <Route exact path='/' component={HomePageContainer} />
                         <Route path='/recipes' component={ResultsContainer} />
+                        <Route path='/recipe/:rid' component={RecipeContainer} />
                     </Col>
                 </Row>
             </Grid>
