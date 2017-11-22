@@ -42,6 +42,7 @@ export class Results extends Component {
                 
             ],
         };
+        // this.allTags = ['Breakfast', 'Appetizers', 'Main Course', 'Finger Food', 'Snacks', 'Desserts', 'Game Day' ,'Weeknight Dinnners', 'Office Lunch', 'Quick Eats', 'Slow Cook', 'Meal Prep', '< 15 mins', '15 mins - 30 mins', '30 mins - 1 hour', '1 hour - 2 hours', '> 2 hours', 'Hot', 'Cold'];
     }
 
     componentWillReceiveProps(nextProps) {
@@ -55,16 +56,33 @@ export class Results extends Component {
 
     changeFilter = () => {
         const currentCount = this.state.filterCount;
-        const newCount = (currentCount === 6) ? 0 : currentCount+1;
+        // let newCount = currentCount + 1;
+        // let currentfilterCriteria = this.state.filterCriteria;
+        // let newfilterCriteria = currentfilterCriteria;
+        // if (currentCount === 6) {
+        //     newCount = 1;
+        //     newfilterCriteria = _.difference(currentfilterCriteria, this.allTags);
+        // }
+        const newCount = (currentCount === 6) ? 1 : currentCount + 1;
         this.setState({
-            filterCount: newCount
+            filterCount: newCount,
         });
     }
 
     addFilterTags = (option) => () => {
-        const newFilters = this.state.filterCriteria.concat(option);
+        let newFilters = [];
         const buttonHighlightId = `${this.state.filterCount}|${option}`;
-        this.setState({ filterCriteria: newFilters, [buttonHighlightId]: true });
+        let hightlightFlag;
+        if (_.includes(this.state.filterCriteria, option)) {
+            const tagToDelete = this.state.filterCriteria.indexOf(option);
+            this.state.filterCriteria.splice(tagToDelete, 1);
+            newFilters = this.state.filterCriteria;
+            hightlightFlag = false;
+        } else {
+            newFilters = this.state.filterCriteria.concat(option);
+            hightlightFlag = true;
+        }
+        this.setState({ filterCriteria: newFilters, [buttonHighlightId]: [hightlightFlag] });
     }
 
     handleChips = (arrayValue, chipDeleted) => {
@@ -143,7 +161,7 @@ class FilterOptions extends Component {
                     <CardHeader />
                     <CardMedia>
                         <Row> {data.Text} </Row>
-                        <Row> {data.Options.map(option => <RaisedButton key={option} label={option} primary={filterProps[`${filterProps.filterCount}|${option}`]} style={style} onClick={this.props.addFilterTags(option)} />)} </Row>
+                        <Row> {data.Options.map(option => { const flag = (`${filterProps.filterCount}|${option}` in filterProps) ? filterProps[`${filterProps.filterCount}|${option}`][0] : false; return (<RaisedButton key={option} label={option} primary={flag} style={style} onClick={this.props.addFilterTags(option)} />); })} </Row>
                     </CardMedia> 
                     <CardActions>
                         <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
