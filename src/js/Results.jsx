@@ -24,8 +24,6 @@ export class Results extends Component {
                     TimeToCook: '30 minutes',
                     IngredientsName: ['Vegetable Oil', 'Onion', 'Garilc', 'Tomato', 'Vegetable Stock', 'Tomato Paste', 'Pepper'],
                     Substitutions: { 'Vegetable Stock': 'Chicken Stock' , 'Tomato': 'Tomato Puree'},
-                    IngredientsDetails: ['2 tablespoons vegetable oil', '2 onions, chopped', '4 cloves garlic, minced', '1 can stewed tomatoes', '3 cups vegetable stock', '1/4 cup tomato paste', '1/2 teaspoon pepper'],
-                    Steps: ['Heat oil over med heat in a saucepan.', 'Cook onions and garlic stirring for 5 minutes.', 'Add tomatoes, stock, tomato paste and pepper.', 'Bring to a boil then reduce heat and simmer 15 minutes or until slightly thickened Puree with an immersion blender or ordinary blender.'],
                     Image: 'http://cdn-image.foodandwine.com/sites/default/files/styles/medium_2x/public/201308-xl-tomato-soup-with-chickpeas-and-pasta.jpg?itok=UY8q3aEd',
                 }, 
                 {
@@ -36,8 +34,6 @@ export class Results extends Component {
                     Type: 'Hot',
                     TimeToCook: '4 minutes',
                     IngredientsName: ['Eggs', 'Milk', 'Bell Pepper', 'Onion', 'Mozarella Cheese', 'Ketchup'],
-                    IngredientsDetails: ['2 nature\'s promise extra large brown eggs', '2 tablespoons 2% low-fat milk', '1/2 cup bell pepper', '1/2 cup onion', '1/2 cup mozzarella cheese', '1 tablespoon ketchup'],
-                    Steps: ['Crack eggs in a bowl, add the milk, and whisk until yolks break.', 'Add milk, peppers, and onions and whisk again.', 'Put bowl in microwave and cook for 1 minute, checking occasionally.', 'Take out bowl, put omelet on a plate, sprinkle cheese and cook for 30 seconds to melt cheese', 'Take out and enjoy!'],
                     Image: 'http://img1.cookinglight.timeinc.net/sites/default/files/styles/4_3_horizontal_-_1200x900/public/image/2017/01/main/half-moon-browned-omelet.jpg?itok=GQs78MTg',
                 }, 
                 
@@ -108,7 +104,7 @@ export class Results extends Component {
                         </Col>
                         <Col xs={8}>
                             <ShowResults filterCriteria={this.state.filterCriteria} handleChips={this.handleChips}
-                                         recipes={this.state.recipes} openRecipe={this.openRecipe}/>
+                                         recipes={this.state.recipes} openRecipe={this.openRecipe} modifyIngredients={this.modifyIngredients}/>
                         </Col>
                     </Row>
                 </Grid>
@@ -121,12 +117,18 @@ class FilterOptions extends Component {
 
     renderCard = (data) => {
         const style = {
-            margin: 12,
+            button: {
+                margin: 12,
+            },
+            card: {
+                display: 'block',
+                height: '80vh'
+            }            
         };
         const filterProps = this.props.filterProps;
         if (data.Type === 'Landing') {
             return (
-                <Card>
+                <Card style={style.card}>
                     <CardHeader />
                     <CardMedia>
                         <img src={data.Image} alt="" /> 
@@ -154,7 +156,7 @@ class FilterOptions extends Component {
                     <CardHeader />
                     <CardMedia>
                         <Row> {data.Text} </Row>
-                        <Row> {data.Options.map(option => { const flag = (`${filterProps.filterCount}|${option}` in filterProps) ? filterProps[`${filterProps.filterCount}|${option}`][0] : false; return (<RaisedButton key={option} label={option} primary={flag} style={style} onClick={this.props.addFilterTags(option)} />); })} </Row>
+                        <Row> {data.Options.map(option => { const flag = (`${filterProps.filterCount}|${option}` in filterProps) ? filterProps[`${filterProps.filterCount}|${option}`][0] : false; return (<RaisedButton key={option} label={option} primary={flag} style={style.button} onClick={this.props.addFilterTags(option)} />); })} </Row>
                     </CardMedia> 
                     <CardActions>
                         <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
@@ -180,7 +182,7 @@ class FilterOptions extends Component {
                     <CardHeader />
                     <CardMedia>
                         <Row> {data.Text} </Row>
-                        <Row> {data.Options.map(option => <RaisedButton key={option} label={option} primary={filterProps[`${filterProps.filterCount}|${option}`]} style={style} onClick={this.props.addFilterTags(option)} />)} </Row>
+                        <Row> {data.Options.map(option => <RaisedButton key={option} label={option} primary={filterProps[`${filterProps.filterCount}|${option}`]} style={style.button} onClick={this.props.addFilterTags(option)} />)} </Row>
                     </CardMedia> 
                     <CardActions>
                         <FlatButton label="I don't see anything I like" onClick={this.props.changeFilter} />
